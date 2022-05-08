@@ -9,8 +9,12 @@ from sqlalchemy.orm import sessionmaker
 engine = create_engine("sqlite+pysqlite:///snowbook.sqlite3", echo=True, future=True)
 Base = declarative_base()
 
-Session = sessionmaker(bind=engine)
-session = Session()
+
+def getSession():
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    return session
 
 
 class User(Base):
@@ -55,9 +59,12 @@ def start_db():
 
 
 def _add(some):
+    session = getSession()
+
     session.add(some)
     session.commit()
 
+    session.close()
 
 def createNewUser(username, passhash):
     d = datetime.now()
@@ -90,6 +97,8 @@ def createNewNote(user_id, title, text):
 
 
 def getById(obj, ID):
+    session = getSession()
+
     if obj is User:
         response = session.query(User).filter_by(id=ID).first()
     elif obj is Token:
@@ -97,23 +106,34 @@ def getById(obj, ID):
     elif obj is Note:
         response = session.query(Note).filter_by(id=ID).first()
 
+    session.close()
+
     return response
 
 
 def getUser(username):
+    session = getSession()
     response = session.query(User).filter_by(username=username).first()
+
+    session.close()
 
     return response
 
 
 def getToken(token):
+    session = getSession()
     response = session.query(Token).filter_by(token=token).first()
+
+    session.close()
 
     return response
 
 
 def getAllNotes(user):
+    session = getSession()
     response = session.query(Note).filter_by(user_id=user.id).all()
+
+    session.close()
 
     return response
 
@@ -124,8 +144,10 @@ def update(some):
 
 
 def delete(some):
+    session = getSession()
     session.delete(some)
     session.commit()
+    session.close()
 
 
 def main():
