@@ -99,6 +99,7 @@ def get_note(note_id, token):
                 response['getNote'] = 'OK'
 
                 note = {}
+                note['id'] = n.id
                 note['title'] = n.title
                 note['text'] = n.text
 
